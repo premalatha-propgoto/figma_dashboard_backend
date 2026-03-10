@@ -1,5 +1,13 @@
 import knex from "knex";
-import knexfile from "../knexfile.js";
-const config = knexfile.development;
-const db = knex(config);
+
+const db = knex({
+  client: "pg",
+  connection: {
+    host: "localhost",
+    user: "postgres",
+    password: "Prema",
+    database: "figma_dashboard",
+  },
+});
+
 export default db;

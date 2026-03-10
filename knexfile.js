@@ -1,14 +1,14 @@
 export default {
   development: {
-    client: 'pg',
+    client: "pg",
     connection: {
-      host: '127.0.0.1',
-      user: 'postgres',
-      password: 'Prema',
-      database: 'figma_dashboard'
+      host: "127.0.0.1",
+      user: "postgres",
+      password: "Prema",
+      database: "figma_dashboard",
     },
     migrations: {
-      directory: './migrations'
-    }
-  }
+      directory: "./migrations",
+    },
+  },
 };

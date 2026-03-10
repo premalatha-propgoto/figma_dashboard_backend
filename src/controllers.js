@@ -3,11 +3,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 export const loginUser = async (req, res) => {
   try {
-    const { user_id, email, password, role } = req.body;
-    if (!user_id || !email || !password || !role) {
+    const { email, password, role } = req.body;
+    if ( !email || !password ) {
       return res.status(400).json({ message: "All fields are required" });
     }
-    const user = await knex("user").where({ user_id, email, role }).first();
+    const user = await knex("user").where({ email, role }).first();
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -23,7 +23,8 @@ export const loginUser = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      user,
+      user_id: user.user_id,
+      role: user.role,
     });
   } catch (err) {
     console.error("Login Error:", err);
@@ -76,14 +77,11 @@ export const createUser = async (req, res) => {
 
 export const createProject = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, created_by } = req.body;
 
     if (!name) {
       return res.status(400).json({ message: "Project name is required" });
     }
-
-    // Use a default created_by UUID for testing (replace with real user_id later)
-    const created_by = "00000000-0000-0000-0000-000000000001";
 
     const [project] = await knex("projects")
       .insert({
@@ -92,7 +90,7 @@ export const createProject = async (req, res) => {
         created_by,
         updated_by: created_by,
       })
-      .returning("*"); 
+      .returning("*");
 
     res.status(201).json({ message: "Project created successfully", project });
   } catch (error) {
@@ -101,6 +99,26 @@ export const createProject = async (req, res) => {
   }
 };
 
+export const createTask = async (req, res) => {
+try{
+  const { title, description, start_time, end_time} = req.body;
+  if (!title) {
+    return res.status(400).json({ message: "Title isrequired" });
+  }
+  const [task] = await knex("tasks")
+    .insert({
+      title,
+      description: description || null,
+      start_time: start_time || null,
+      end_time: end_time || null,
+    })
+    .returning("*");
+  res.status(201).json({ message: "Task created successfully", task });
+} catch (error) {
+  console.error("Create Task Error:", error);
+  res.status(500).json({ message: "Server error" });
+}
+};
 export const getTasks = async (req, res) => {
   try {
     const { project_id, status } = req.query;
@@ -142,16 +160,21 @@ export const getProjects = async (req, res) => {
 
 export const getUser = async (req, res) => {
   try {
-    const { role, user_id } = req.query;
+    const { role, user_id } = req.body;   
+
     let query = knex("user").select("*");
+
     if (user_id) {
       query = query.where("user_id", user_id);
     }
+
     const user = await query.orderBy("created_at", "desc");
+
     res.status(200).json({
       message: "User list fetched successfully",
       user,
     });
+
   } catch (error) {
     console.error("Get User Error:", error);
     res.status(500).json({ message: "Server error" });
