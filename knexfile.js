@@ -2,7 +2,7 @@ export default {
   development: {
     client: "pg",
     connection: {
-      host: "127.0.0.1",
+      host: "host.docker.internal",
       user: "postgres",
       password: "Prema",
       database: "figma_dashboard",
