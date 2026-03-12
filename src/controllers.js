@@ -7,7 +7,7 @@ export const loginUser = async (req, res) => {
     if ( !email || !password ) {
       return res.status(400).json({ message: "All fields are required" });
     }
-    const user = await knex("user").where({ email, role }).first();
+    const user = await knex("users").where({ email, role }).first();
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -50,7 +50,7 @@ export const createUser = async (req, res) => {
     }
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
-    const [newUser] = await knex("user")
+    const [newUser] = await knex("users")
       .insert({
         full_name,
         email,
@@ -101,7 +101,7 @@ export const createProject = async (req, res) => {
 
 export const createTask = async (req, res) => {
 try{
-  const { title, description, start_time, end_time} = req.body;
+  const { title, description, start_time, end_time,url} = req.body;
   if (!title) {
     return res.status(400).json({ message: "Title isrequired" });
   }
@@ -111,6 +111,7 @@ try{
       description: description || null,
       start_time: start_time || null,
       end_time: end_time || null,
+      url: url || null,
     })
     .returning("*");
   res.status(201).json({ message: "Task created successfully", task });
@@ -162,7 +163,7 @@ export const getUser = async (req, res) => {
   try {
     const { role, user_id } = req.body;   
 
-    let query = knex("user").select("*");
+    let query = knex("users").select("*");
 
     if (user_id) {
       query = query.where("user_id", user_id);
